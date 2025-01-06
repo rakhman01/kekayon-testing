@@ -1,0 +1,4 @@
+/c/nama-categori/nama-atribut
+/nama-ready-made-tours
+/p/nama-pages
+/p/testimonials
