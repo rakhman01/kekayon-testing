@@ -38,7 +38,7 @@ const StaySearchForm: FC<{}> = ({}) => {
         <ExperienceInput data={dataExperience.data} className="flex-[1]" />
         <div className="self-center border-r border-slate-200 dark:border-slate-700 h-8"></div>
         {/* <StayDatesRangeInput className="flex-1" /> */}
-        <ExperienceInput data={[
+        <ExperienceInput placeHolder="Class" desc="class" data={[
           {
             title: "Economy",
             id: 1

@@ -4,6 +4,7 @@ import convertNumbThousand from "@/utils/convertNumbThousand";
 import Link from "next/link";
 import Image from "next/image";
 import StartRating from "./StartRating";
+import { Route } from "next";
 
 export interface CardCategory5Props {
   className?: string;
@@ -14,12 +15,9 @@ const CardCategory5: FC<any> = ({
   className = "",
   taxonomy,
 }) => {
-  console.log(taxonomy,"taxomys");
-  
-  const { count, name, href = "/", thumbnail} = taxonomy;
   return (
     <Link
-      href={'/'}
+      href={`/experience/details/${taxonomy?.id}`}
       className={`nc-CardCategory5 flex flex-col ${className}`}
       data-nc-id="CardCategory5"
     >
@@ -35,39 +33,36 @@ const CardCategory5: FC<any> = ({
         />
         <span className="opacity-0 group-hover:opacity-100 absolute inset-0 bg-black bg-opacity-10 transition-opacity"></span>
       </div>
-      <div className="mt-4 px-3 truncate">
+      <div className="mt-4 px-3">
         <h2
-          className={`text-base sm:text-lg text-neutral-900 dark:text-neutral-100 font-medium truncate mb-4`}
+          className="text-base sm:text-lg text-neutral-900 dark:text-neutral-100 font-medium truncate mb-4"
         >
           {taxonomy.title}
         </h2>
-        {/* <span
-          className={`block mt-2 text-sm text-neutral-6000 dark:text-neutral-400`}
-        >
-          {convertNumbThousand(count)} properties
-        </span> */}
-        <div className="text-sm text-neutral-500 dark:text-neutral-400 my-2">
-          <div className="flex items-center">
-            <span className="hidden sm:inline-block  text-base">
-              <i className="las la-map-marked"></i>
-            </span>
-            <span className="sm:ml-2">Belitung Island, Belitung</span>
+        {/* {taxonomy?.category.map((category: any, index: number) => (
+          <div className="flex flex-col items-center text-center p-4 border border-gray-200 rounded-lg shadow-sm hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-center w-12 h-12 rounded-full bg-gray-100 text-gray-600">
+            <div className="w-8 h-8 text-sm">{category.icon || ''}</div>
           </div>
-          {/* <StartRating reviewCount={4} point={4} /> */}
+          <h3 className="text-lg font-semibold mt-3">{category.name}</h3>
+          <p className="text-sm text-gray-500 mt-2">{category.name}</p>
         </div>
-        <div>
-          <p className="text-sm text-neutral-500 dark:text-neutral-400 font-normal">
-          Kategori
-          </p>
-          <span className="text-base font-semibold mt-4">
-          {taxonomy?.category.name}
-            {/* <span className="text-sm text-neutral-500 dark:text-neutral-400 font-normal">
-              /person
-            </span> */}
-          </span>
-        </div>
+    
+      ))} */}
+
+        <div
+          dangerouslySetInnerHTML={{ __html: taxonomy.content }}
+          className="text-sm overflow-hidden text-ellipsis whitespace-normal"
+          style={{
+            display: '-webkit-box',
+            WebkitLineClamp: 5,
+            WebkitBoxOrient: 'vertical',
+          }}
+        ></div>
       </div>
     </Link>
+
+
   );
 };
 

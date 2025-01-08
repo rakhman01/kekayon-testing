@@ -18,6 +18,7 @@ import { initialStateSearchLocation, SearchApiResponse } from "config/location/t
 import { ApiResponseExperiences, initialStateDetailExperiences, initialStateExperiences } from "config/experiences/types";
 import Hero from "./(server-components)/Hero";
 import { SwiperSection } from "@/components/SwiperSection";
+import ImageSlider from "@/components/SliderSample";
 
 
 interface FAQData {
@@ -52,7 +53,7 @@ function PageHome() {
     getExperience()
   }, [])
 
-  
+
 
   return (
     <main className="nc-PageHome relative overflow-hidden">
@@ -66,6 +67,7 @@ function PageHome() {
         {/* Overview */}
         <OverviewOfServices />
         {/*  */}
+        {/* <ImageSlider /> */}
         <SwiperSection />
 
         {/* Explore Indonesia */}
@@ -100,7 +102,7 @@ function PageHome() {
           subHeading="Handpicked by our travel experts, these tours highlight the best Indonesia has to offer. 
 Immerse yourself in unforgettable experiences across the archipelago."
           categoryCardType="card5"
-          itemPerRow={5}
+          itemPerRow={2}
           categories={dataExperience?.data}
           data={dataExperience?.data}
         />

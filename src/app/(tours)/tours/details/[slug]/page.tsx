@@ -235,7 +235,6 @@ const Page: FC<
   const getDataSummaryTours = async () => {
 
     const res = await HttpDataClients.SearchDetailSummaryTours({ id: slug, lang: '' })
-    console.log(res.data, 'bodoks');
     
     if (res.status = 1) {
       setDataSummaryTours(res.data)

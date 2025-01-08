@@ -9,10 +9,10 @@ export function getSearchExperiences(params: {
   }
 
   export function getDetailExperiences(params: {
-    id: string,
+    id: any,
     lang: string
   }) {
-    return http.get(`/experiences/:${params.id}?lang=${params.lang}`)
+    return http.get(`/experiences/${params.id}?lang=${params.lang}`)
   }
 
   export function getCategoryExperiences(params: {

@@ -7,8 +7,10 @@ import "swiper/css";
 import "swiper/css/pagination";
 import "swiper/css/navigation";
 
-import images from "@/images/hero-right-3.png";
-import image2 from "@/images/hero-right-3.png";
+import images from "../../../public/images/banner/banner1.png";
+import image2 from "../../../public/images/banner/banner2.png";
+import images3 from "../../../public/images/banner/banner3.png";
+import images4 from "../../../public/images/banner/banner4.png";
 import HeroSearchForm from "../(client-components)/(HeroSearchForm)/HeroSearchForm";
 
 export const slideshowData = [
@@ -25,7 +27,13 @@ export const slideshowData = [
         text: "Customized experiences that ignite passion, foster connections, and refresh the spirit.",
     },
     {
-        imgSrc: images,
+        imgSrc: images3,
+        imgAlt: "fashion-slideshow-03",
+        heading: "Discover your next adventure with Kekayon",
+        text: "Customized experiences that ignite passion, foster connections, and refresh the spirit.",
+    },
+    {
+        imgSrc: images4,
         imgAlt: "fashion-slideshow-03",
         heading: "Discover your next adventure with Kekayon",
         text: "Customized experiences that ignite passion, foster connections, and refresh the spirit.",
