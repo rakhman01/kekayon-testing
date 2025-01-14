@@ -20,7 +20,7 @@ export interface SectionSliderNewCategoriesProps {
   subHeading?: string;
   categories?: any;
   categoryCardType?: "card3" | "card4" | "card5";
-  itemPerRow?: 4 | 5 | 2;
+  itemPerRow?: 4 | 5 | 2 |3;
   sliderStyle?: "style1" | "style2";
   data?: any
 }

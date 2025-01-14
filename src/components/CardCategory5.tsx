@@ -5,6 +5,7 @@ import Link from "next/link";
 import Image from "next/image";
 import StartRating from "./StartRating";
 import { Route } from "next";
+import dumy from '../../public/images/dumy_logo.png'
 
 export interface CardCategory5Props {
   className?: string;
@@ -15,6 +16,7 @@ const CardCategory5: FC<any> = ({
   className = "",
   taxonomy,
 }) => {
+  
   return (
     <Link
       href={`/experience/details/${taxonomy?.id}`}
@@ -26,8 +28,8 @@ const CardCategory5: FC<any> = ({
       >
         <Image
           fill
-          alt=""
-          src={taxonomy?.image_url || ""}
+          alt={'image tour'}
+          src={taxonomy?.image_url ||taxonomy.image || dumy}
           className="object-cover w-full h-full rounded-2xl"
           sizes="(max-width: 400px) 100vw, 400px"
         />

@@ -1,5 +1,5 @@
 import React from "react";
-import logoImg from "@/images/logo.png";
+import logoImg from "@/images/full-logo.png";
 import logoLightImg from "@/images/logo-light.png";
 import LogoSvgLight from "./LogoSvgLight";
 import LogoSvg from "./LogoSvg";
@@ -39,7 +39,7 @@ const Logo: React.FC<LogoProps> = ({
       {imgLight && (
         <img
           className="hidden max-h-12 dark:block"
-          src={imgLight.src}
+          src={img.src}
           alt="Logo-Light"
         />
       )}

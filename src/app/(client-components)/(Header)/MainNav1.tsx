@@ -51,10 +51,10 @@ const MainNav1: FC<MainNav1Props> = ({ className = "" }) => {
 
   const handleSearch = (e: any) => {
     e.preventDefault(); // Prevent default form submission
-    if (keyword.trim() !== "") {
-      router?.push(`/tours?keyword=${encodeURIComponent(keyword)}` as Route);
-    }
     sessionStorage.setItem("filter", JSON.stringify(data));
+    // if (keyword.trim() !== "") {
+      router?.push(`/tours?keyword=${encodeURIComponent(keyword)}` as Route);
+    // }
     setKeyword('')
     setData({
       location: '',
@@ -163,25 +163,38 @@ const MainNav1: FC<MainNav1Props> = ({ className = "" }) => {
       <div className={`${showModal ? 'block' : 'hidden'} container px-4 py-2 bg-gray-50 rounded-b-md`}>
         <form onSubmit={handleSearch} className="flex justify-between gap-2">
           <Select
-            onChange={(val) => setData((prev) => ({ ...prev, location: val.target.value }))
+            onChange={(val) =>
+              setData((prev) => ({ ...prev, location: val.target.value }))
             }
           >
-            {dataLocation && dataLocation?.data?.map((val: any) => (
-              <option value={val.id} key={val.id}>{val.title}</option>
-            ))}
-
+            <option value="" disabled selected>
+              Select Location
+            </option>
+            {dataLocation &&
+              dataLocation?.data?.map((val: any) => (
+                <option value={val.id} key={val.id}>
+                  {val.title}
+                </option>
+              ))}
           </Select>
+
           <Select
-            onChange={(val) => setData((prev) => ({ ...prev, category: val.target.value }))}
+            onChange={(val) =>
+              setData((prev) => ({ ...prev, category: val.target.value }))
+            }
           >
-            {dataCategory && dataCategory?.map((val: any) => {
-              return (
-                <option value={val.id} key={val.id}>{val.name}</option>
-              )
-            })}
-
+            <option value="" disabled selected>
+              Select Category
+            </option>
+            {dataCategory &&
+              dataCategory?.map((val: any) => (
+                <option value={val.id} key={val.id}>
+                  {val.name}
+                </option>
+              ))}
           </Select>
-          <Input placeholder="Enter Your Tour"  required value={keyword} onChange={(e) => setKeyword(e.target.value)} />
+
+          <Input placeholder="Enter Your Tour" value={keyword} onChange={(e) => setKeyword(e.target.value)} />
           <button onClick={() => handleSearch} className="px-4 py-2 rounded-full bg-primary-6000 text-white font-semibol text-sm cursor-pointer hover:bg-green-800">Search</button>
         </form>
       </div>

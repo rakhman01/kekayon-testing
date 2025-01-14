@@ -33,7 +33,7 @@ const StaySearchForm: FC<{}> = ({}) => {
   },[])
   const renderForm = () => {
     return (
-      <form className="w-full relative z-40 mt-8 flex rounded-full shadow-xl dark:shadow-2xl bg-white dark:bg-neutral-800">
+      <form className="w-full relative z-10 mt-8 flex rounded-full shadow-xl dark:shadow-2xl bg-white dark:bg-neutral-800">
         <LocationInput data={dataLocation.data} className="flex-[1]" />
         <ExperienceInput data={dataExperience.data} className="flex-[1]" />
         <div className="self-center border-r border-slate-200 dark:border-slate-700 h-8"></div>

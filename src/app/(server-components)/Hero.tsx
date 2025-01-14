@@ -62,7 +62,6 @@ export default function Hero() {
                 }}
                 onSwiper={(swiper) => {
                     // Debug: Ensure the swiper instance is initialized
-                    console.log("Swiper initialized", swiper);
                 }}
             >
                 {slideshowData.map((item, index) => (

@@ -18,28 +18,49 @@ function PageHome({ params }: any) {
     const [currentHoverID, setCurrentHoverID] = useState<string | number>(-1);
     const [showFullMapFixed, setShowFullMapFixed] = useState(false);
     const [keywordData, setKeyword] = useState("");
-  // Wrap useSearchParams in a Suspense boundary
-  const searchParams = useSearchParams();
+    const [loading, setLoading] = useState(false)
+    const searchParams = useSearchParams();
     const [dataTours, setDataTours] = useState([])
-    
+    const [filter, setFilter] = useState<any>({
+        category: '',
+        location: ''
+    })
 
-    const getDataTours = async () => {
-        const res = await HttpDataClients.SearchTours({page: 1, s: '', service_name: keywordData})
+
+    const getDataTours = async () => {       
+        setLoading(true) 
+        const res = await HttpDataClients.SearchTours({ page: 1, s: '', location_ids: filter.location, experience_ids: filter.category, service_name: keywordData })        
         if (res.status = 1) {
             setDataTours(res.data)
+            setLoading(false)
+        }else{
+            setLoading(false)
         }
-        
-    }    
 
-  // Get keyword from the query string
-  useEffect(() => {
-    const keywordValue = searchParams.get("keyword") || "";
-    if (keywordValue !== keywordData) {
-      setKeyword(keywordValue);
     }
-    getDataTours()
-  }, [searchParams,]);
-    
+
+    // Get keyword from the query string
+    useEffect(() => {
+        const keywordValue = searchParams.get("keyword") || "";
+        const storedFilter = JSON.parse(sessionStorage.getItem("filter") || "{}");
+      
+        if (storedFilter.category !== filter.category || storedFilter.location !== filter.location) {
+          setFilter((prev: any) => ({
+            ...prev,
+            category: storedFilter.category ?? prev.category,
+            location: storedFilter.location ?? prev.location,
+          }));
+          getDataTours();
+        }
+      
+        if (keywordValue !== keywordData) {
+          setKeyword(keywordValue);
+        }
+        getDataTours();
+      
+      }, [searchParams, keywordData, filter]);
+      
+
 
     return (
         <main className="nc-PageHome relative overflow-hidden">
@@ -48,7 +69,7 @@ function PageHome({ params }: any) {
 
             <div className="container relative space-y-24 mb-24 lg:space-y-28 lg:mb-28">
                 {/* SECTION HERO */}
-                <SectionHero title={"Active Adventures"}  className="pt-10 lg:pt-16 lg:pb-16" />
+                <SectionHero title={"Active Adventures"} className="pt-10 lg:pt-16 lg:pb-16" />
                 {/* slider  */}
                 {/* <SectionSliderNewCategories /> */}
                 {/* Explore Indonesia */}
@@ -64,13 +85,15 @@ function PageHome({ params }: any) {
                     />
                     <div className="grid grid-cols-1 gap-8">
                         {dataTours.map((item: any) => {
+                            console.log(loading,"loading");
+                            
                             return (
                                 <div
                                     key={item.id}
                                     onMouseEnter={() => setCurrentHoverID((_) => item.id)}
                                     onMouseLeave={() => setCurrentHoverID((_) => -1)}
                                 >
-                                    <ExperiencesCardI data={item} />
+                                 {loading ?  <ExperiencesCardI data={item} loading={true} /> :    <ExperiencesCardI data={item} loading={false} />}
                                 </div>
                             )
                         })}

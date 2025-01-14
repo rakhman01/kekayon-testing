@@ -1,7 +1,7 @@
 import { getCategory, getDetailExperiences, getSearchExperiences } from "./experiences"
 import { getSearchLocation } from "./location"
 import { getSearchTours } from "./reviews"
-import { getCategoryTours, getDetailSummaryTours, getDetailTours } from "./tours"
+import { getCategoryTours, getDetailRelatedTours, getDetailSummaryTours, getDetailTours } from "./tours"
 
 
 class HttpDataClient {
@@ -53,7 +53,7 @@ class HttpDataClient {
     }
 
     // tours
-    async SearchTours(params: { page: number, s: string,service_name: string  }) {
+    async SearchTours(params: { page: number,s: string, location_ids: any, experience_ids: any,service_name: string  }) {
         return await getSearchTours(params).then((response) => {
             const res = response.data
             return res
@@ -71,6 +71,14 @@ class HttpDataClient {
     }
     async SearchDetailSummaryTours(params: { id: any, lang: string,  }) {
         return await getDetailSummaryTours(params).then((response) => {
+            const res = response.data
+            return res
+        }).catch((error: any) => {
+            return error.response.data
+        })
+    }
+    async SearchDetailRelatedTours(params: { id: any, lang: string,  }) {
+        return await getDetailRelatedTours(params).then((response) => {
             const res = response.data
             return res
         }).catch((error: any) => {

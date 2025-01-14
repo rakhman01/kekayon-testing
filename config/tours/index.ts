@@ -20,6 +20,12 @@ export function getSearchTours(params: {
   }) {
     return http.get(`/tours/${params.id}/summary?lang=${params.lang}`)
   }
+  export function getDetailRelatedTours(params: {
+    id: string,
+    lang: string
+  }) {
+    return http.get(`/tours/${params.id}/related?lang=${params.lang}`)
+  }
 
   export function getCategoryTours() {
     return http.get(`/experiences/category`)
