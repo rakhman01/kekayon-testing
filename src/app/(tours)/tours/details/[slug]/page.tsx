@@ -14,12 +14,12 @@ import { Route } from "next";
 import { highlights, includes_demo, PHOTOS } from "@/app/(listing-detail)/listing-car-detail/constant";
 import StayDatesRangeInput from "@/app/(client-components)/(HeroSearchForm2Mobile)/DatesRangeInput";
 import GuestsInput from "@/app/(client-components)/(HeroSearchForm2Mobile)/GuestsInput";
-import { DEMO_CATS_2 } from "@/components/ModalBookingRequest";
 import SectionSliderNewCategories from "@/components/SectionSliderNewCategories";
 import Heading2 from "@/shared/Heading2";
 import ExperiencesCardI from "@/components/ExperiencesCardI";
 import HttpDataClients from "config/utils";
 import { ChevronDownIcon, ChevronUpIcon, MapPinIcon } from "@heroicons/react/24/solid";
+import FloatingMenu from "@/components/FloatingMenu";
 
 export interface ListingExperiencesDetailPageProps { }
 
@@ -129,7 +129,7 @@ const Page: FC<
   }
   const getDataRelatedTours = async () => {
 
-    const res = await HttpDataClients.SearchDetailRelatedTours({ id: slug, lang: '' })    
+    const res = await HttpDataClients.SearchDetailRelatedTours({ id: slug, lang: '' })
     if (res.status = 1) {
       setDataRelatedTours(res.data)
     }
@@ -214,6 +214,21 @@ const Page: FC<
   };
 
   const renderSection2 = () => {
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [modalData, setModalData] = useState<any>(null);
+
+    console.log(modalData,'modal data');
+    
+
+    const handleReadMore = (data: any) => {
+      setModalData(data);
+      setIsModalOpen(true);
+    };
+
+    const closeModal = () => {
+      setIsModalOpen(false);
+      setModalData(null);
+    };
 
     return (
       <div className="listingSection__wrap">
@@ -224,44 +239,89 @@ const Page: FC<
           </span>
         </div>
         <div className="w-14 border-b border-neutral-200 dark:border-neutral-700"></div>
-        {/* 6 */}
+        {/* Grid */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 text-sm text-neutral-700 dark:text-neutral-300">
           {Object.keys(dataSummaryTours?.summary || {}).map((item: string) => {
-            const data = dataSummaryTours?.summary[item];  // Get the array for each key (e.g., hotels, transport)
+            const data = dataSummaryTours?.summary[item]; // Get the array for each key
 
             return (
-              <div key={item} className="flex items-center space-x-3 border border-gray-200 rounded-md px-4 py-2 cursor-pointer hover:bg-gray-50 shadow-lg">
+              <div
+                key={item}
+                className="flex items-center space-x-3 border border-gray-200 rounded-md px-4 py-2 cursor-pointer hover:bg-gray-50 shadow-lg"
+              >
                 <div className="w-full flex flex-col justify-center items-start">
                   <MapPinIcon className="h-8 w-8 sm:h-12 sm:w-12" />
                   <span className="text-sm font-semibold">{item}</span>
-                <div className="w-full flex justify-start items-start">
-                  <ul className="w-full flex justify-start items-start">
-                    {Array.isArray(data) ? (
-                      data.map((entry, index) => {
-                        console.log(entry,'entry');
-                        
-                      return  (
-                        <li key={index} >
-                          <span className="text-xs mr-2 truncate"> {entry.title} |</span>
-                          {entry.has_hotel}
-                          {/* {entry.image_url && <img src=s{entry.image_url} alt={entry.title} />} */}
-                        </li>
-                      )
-          })
-                    ) : (
-                     <span>-</span>
-                    )}
-                  </ul>
+                  <div className="w-full flex justify-start items-start">
+                    <ul className="w-full flex justify-start items-start">
+                      {Array.isArray(data) ? (
+                        data.map((entry, index) => (
+                          <li key={index}>
+                            <span className="text-xs mr-2 truncate">
+                              {entry.title} |
+                            </span>
+                            {entry.has_hotel}
+                          </li>
+                        ))
+                      ) : (
+                        <span>-</span>
+                      )}
+                    </ul>
+                  </div>
+                  <button
+                    onClick={() => handleReadMore(data)} // Pass data to the modal
+                    className="w-24 h-8 flex justify-center text-xs text-white border-white items-center rounded-full bg-primary-50 mt-2"
+                  >
+                    Read More
+                  </button>
                 </div>
-               <div className="w-24 h-8 flex justify-center text-xs text-white border-white items-center rounded-full bg-primary-50 mt-2">
-                Read More
-               </div>
-                </div>
-               
               </div>
             );
           })}
         </div>
+
+        {/* Modal */}
+        {isModalOpen && (
+          <div
+            onClick={() => setIsModalOpen(false)} // Close modal when background is clicked
+            className="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-50 top-20"
+          >
+            <div
+              onClick={(e) => e.stopPropagation()} // Prevent modal close when clicking inside the modal content
+              className="bg-white rounded-lg shadow-lg max-w-md w-full p-4"
+            >
+              <div className="flex justify-between items-center border-b pb-2">
+                <h3 className="text-lg font-semibold">Details</h3>
+                <button
+                  onClick={closeModal}
+                  className="text-gray-500 hover:text-gray-800 focus:outline-none"
+                >
+                  ×
+                </button>
+              </div>
+              <ul className="mt-2 space-y-2">
+                {Array.isArray(modalData) && modalData.length > 0 ? (
+                  modalData.map((entry: any, index: number) => (
+                    <li key={index} className="border-b pb-2">
+                      <p className="font-semibold">{entry.title}</p>
+                      <p>Has Hotel: {entry.has_hotel ? "Yes" : "No"}</p>
+                      {entry.image_url && (
+                        <img
+                          src={entry.image_url}
+                          alt={entry.title}
+                          className="mt-2 w-full rounded-md"
+                        />
+                      )}
+                    </li>
+                  ))
+                ) : (
+                  <p>No details available</p>
+                )}
+              </ul>
+            </div>
+          </div>
+        )}
+
 
       </div>
     );
@@ -595,7 +655,7 @@ const Page: FC<
         <SectionSliderNewCategories
           heading=""
           subHeading=""
-          categories={DEMO_CATS_2}
+          categories={[]}
           categoryCardType="card4"
           itemPerRow={4}
           className="my-2"
@@ -678,7 +738,9 @@ const Page: FC<
         <main className="relative z-10 mt-11 flex flex-col">
           {/* CONTENT */}
           <div className="w-full lg:space-y-10">
-            {renderSection1()}
+
+            <FloatingMenu data={{ banner_image: dataTours?.banner_image, duration: dataTours?.duration, title: dataTours?.title, id: dataTours?.id }} />
+            {/* {renderSection1()} */}
             {renderSection10()}
             {renderSection9()}
             {renderSection2()}
@@ -708,6 +770,7 @@ Immerse yourself in unforgettable experiences across the archipelago."
               itemPerRow={3}
               categories={dataRelatedTours}
             />
+
             {/* have question */}
             {renderSection14()}
           </div>

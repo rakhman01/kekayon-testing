@@ -1,8 +1,11 @@
 "use client";
 
-import { ClockIcon, MapPinIcon } from "@heroicons/react/24/outline";
+import { MapPinIcon } from "@heroicons/react/24/outline";
 import React, { useState, useRef, useEffect, FC } from "react";
 import ClearDataButton from "./ClearDataButton";
+import { useDispatch, useSelector } from "react-redux";
+import { RootState } from "store/store";
+import { updateFormData } from "store/modal/modalSlice";
 
 export interface LocationInputProps {
   placeHolder?: string;
@@ -10,7 +13,7 @@ export interface LocationInputProps {
   className?: string;
   divHideVerticalLineClass?: string;
   autoFocus?: boolean;
-  data?: any
+  data?: any;
 }
 
 const LocationInput: FC<LocationInputProps> = ({
@@ -19,28 +22,43 @@ const LocationInput: FC<LocationInputProps> = ({
   desc = "Where are you going?",
   className = "nc-flex-1.5",
   divHideVerticalLineClass = "left-10 -right-0.5",
-  data
+  data = [],
 }) => {
+  const dispatch = useDispatch();
+  const modalState = useSelector((state: RootState) => state.modal);
+
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
 
-  const [value, setValue] = useState("");
+  const [searchValue, setSearchValue] = useState("");
   const [showPopover, setShowPopover] = useState(autoFocus);
+  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+  const modalStates = useSelector((state: RootState) => state.modal.formData);
+
   
+  
+
   useEffect(() => {
     setShowPopover(autoFocus);
   }, [autoFocus]);
 
-  useEffect(() => {
-    if (eventClickOutsideDiv) {
-      document.removeEventListener("click", eventClickOutsideDiv);
+  const handleClickOutside = React.useCallback((event: MouseEvent) => {
+    if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      setShowPopover(false);
     }
-    showPopover && document.addEventListener("click", eventClickOutsideDiv);
+  }, []);
+
+  useEffect(() => {
+    if (showPopover) {
+      document.addEventListener("click", handleClickOutside);
+    } else {
+      document.removeEventListener("click", handleClickOutside);
+    }
     return () => {
-      document.removeEventListener("click", eventClickOutsideDiv);
+      document.removeEventListener("click", handleClickOutside);
     };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [showPopover]);
+  }, [showPopover, handleClickOutside]);
+  
 
   useEffect(() => {
     if (showPopover && inputRef.current) {
@@ -48,73 +66,61 @@ const LocationInput: FC<LocationInputProps> = ({
     }
   }, [showPopover]);
 
-  const eventClickOutsideDiv = (event: MouseEvent) => {
-    if (!containerRef.current) return;
-    // CLICK IN_SIDE
-    if (!showPopover || containerRef.current.contains(event.target as Node)) {
-      return;
+  
+
+  const handleFormUpdate = (field: string, value: any) => {    
+    dispatch(updateFormData({ [field]: value }));
+  };
+
+  const handleSelectLocation = (item: any) => {
+    const isSelected = selectedLocations.includes(item.title);    
+    const currentLocations = modalStates?.location || [];
+    if (isSelected) {
+      setSelectedLocations((prev) => prev.filter((location) => location !== item.title));
+      handleFormUpdate('location', currentLocations.filter((loc: string) => loc !== item.id));
+    } else {
+      setSelectedLocations((prev) => [...prev, item.title]);
+      handleFormUpdate('location', [...currentLocations, item.id]);
     }
-    // CLICK OUT_SIDE
     setShowPopover(false);
   };
+  
 
-  const handleSelectLocation = (item: string) => {
-    setValue(item);
-    setShowPopover(false);
-  };
 
-  const renderRecentSearches = () => {
-    return (
-      <>
-        <h3 className="block mt-2 sm:mt-0 px-4 sm:px-8 font-semibold text-base sm:text-lg text-neutral-800 dark:text-neutral-100">
-          Recent searches
-        </h3>
-        <div className="mt-2">
-          {data.map((item: any) => (
-            <span
-              onClick={() => handleSelectLocation(item.title)}
-              key={item.id}
-              className="flex px-4 sm:px-8 items-center space-x-3 sm:space-x-4 py-4 hover:bg-neutral-100 dark:hover:bg-neutral-700 cursor-pointer"
-            >
-              <span className="block text-neutral-400">
-                <ClockIcon className="h-4 sm:h-6 w-4 sm:w-6" />
-              </span>
-              <span className=" block font-medium text-neutral-700 dark:text-neutral-200">
-                {item.title}
-              </span>
-            </span>
-          ))}
-        </div>
-      </>
-    );
-  };
 
-  const renderSearchValue = () => {
-    return (
-      <>
+  const renderRecentSearches = () => (
+    <>
+      <h3 className="block mt-2 sm:mt-0 px-4 sm:px-8 font-semibold text-base sm:text-lg text-neutral-800 dark:text-neutral-100">
+        Recent searches
+      </h3>
+      <div className="mt-2">
         {data.map((item: any) => (
-          <span
-            onClick={() => handleSelectLocation(item.title)}
+          <label
             key={item.id}
-            className="flex px-4 sm:px-8 items-center space-x-3 sm:space-x-4 py-4 hover:bg-neutral-100 dark:hover:bg-neutral-700 cursor-pointer"
+            className={`flex px-4 sm:px-8 items-center space-x-3 sm:space-x-4 py-4 hover:bg-neutral-100 dark:hover:bg-neutral-700 cursor-pointer truncate ${
+              selectedLocations.includes(item.title) ? "bg-gray-200" : ""
+            }`}
           >
-            <span className="block text-neutral-400">
-              <ClockIcon className="h-4 w-4 sm:h-6 sm:w-6" />
-            </span>
+            <input
+              type="checkbox"
+              checked={selectedLocations.includes(item.title)}
+              onChange={() => handleSelectLocation(item)}
+              className="form-checkbox"
+            />
             <span className="block font-medium text-neutral-700 dark:text-neutral-200">
               {item.title}
             </span>
-          </span>
+          </label>
         ))}
-      </>
-    );
-  };
+      </div>
+    </>
+  );
 
   return (
     <div className={`relative flex ${className}`} ref={containerRef}>
       <div
         onClick={() => setShowPopover(true)}
-        className={`flex z-10 flex-1 relative [ nc-hero-field-padding ] flex-shrink-0 items-center space-x-3 cursor-pointer focus:outline-none text-left  ${
+        className={`flex z-10 flex-1 relative flex-shrink-0 items-center space-x-3 cursor-pointer focus:outline-none text-left px-2 ${
           showPopover ? "nc-hero-field-focused" : ""
         }`}
       >
@@ -123,37 +129,25 @@ const LocationInput: FC<LocationInputProps> = ({
         </div>
         <div className="flex-grow">
           <input
-            className={`block w-full bg-transparent border-none focus:ring-0 p-0 focus:outline-none focus:placeholder-neutral-300 xl:text-lg font-semibold placeholder-neutral-800 dark:placeholder-neutral-200 truncate`}
-            placeholder={placeHolder}
-            value={value}
+            className="block w-full bg-transparent border-none focus:ring-0 p-0 focus:outline-none xl:text-lg font-semibold placeholder-neutral-800 dark:placeholder-neutral-200 truncate"
+            placeholder={selectedLocations.length > 0 ? "" : placeHolder}
+            value={`${selectedLocations.length} selected`}
             autoFocus={showPopover}
-            onChange={(e) => {
-              setValue(e.currentTarget.value);
-            }}
+            onChange={(e) => setSearchValue(e.currentTarget.value)}
             ref={inputRef}
           />
-          <span className="block mt-0.5 text-sm text-neutral-400 font-light ">
-            <span className="line-clamp-1">{!!value ? placeHolder : desc}</span>
+          <span className="block mt-0.5 text-sm text-neutral-400 font-light">
+            {!!searchValue || selectedLocations.length > 0 ? placeHolder : desc}
           </span>
-          {value && showPopover && (
-            <ClearDataButton
-              onClick={() => {
-                setValue("");
-              }}
-            />
+          {searchValue && showPopover && (
+            <ClearDataButton onClick={() => setSearchValue("")} />
           )}
         </div>
       </div>
 
       {showPopover && (
-        <div
-          className={`h-8 absolute self-center top-1/2 -translate-y-1/2 z-0 bg-white dark:bg-neutral-800 ${divHideVerticalLineClass}`}
-        ></div>
-      )}
-
-      {showPopover && (
         <div className="absolute left-0 z-40 w-full min-w-[300px] sm:min-w-[500px] bg-white dark:bg-neutral-800 top-full mt-3 py-3 sm:py-6 rounded-3xl shadow-xl max-h-96 overflow-y-auto">
-          {value ? renderSearchValue() : renderRecentSearches()}
+          {renderRecentSearches()}
         </div>
       )}
     </div>

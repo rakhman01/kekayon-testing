@@ -84,9 +84,7 @@ function PageHome({ params }: any) {
                         }
                     />
                     <div className="grid grid-cols-1 gap-8">
-                        {dataTours.map((item: any) => {
-                            console.log(loading,"loading");
-                            
+                        {dataTours.map((item: any) => {                            
                             return (
                                 <div
                                     key={item.id}

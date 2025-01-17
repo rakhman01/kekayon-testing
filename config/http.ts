@@ -1,19 +1,22 @@
 import axios from "axios";
 
-// checking token in session storage
-let token = null
-if (typeof window !== "undefined") {
-  token = sessionStorage.getItem('token')
-}
-
-
-
-// create api instance
+// Create an axios instance
 const http = axios.create({
-  baseURL: (typeof process.env.NEXT_PUBLIC_API_URL != 'undefined' ? process.env.NEXT_PUBLIC_API_URL : ''),
-  headers: {
-    'Authorization': 'bearer '+token
-  }
-})
+  baseURL: process.env.NEXT_PUBLIC_API_URL || "",
+});
 
-export default http
+// Add a request interceptor to dynamically set the Authorization header
+http.interceptors.request.use(
+  (config: any) => {
+    if (typeof window !== "undefined") {
+      const token = sessionStorage.getItem("token");
+      if (token) {
+        config.headers.Authorization = `Bearer ${token}`;
+      }
+    }
+    return config;
+  },
+  (error : any) => Promise.reject(error)
+);
+
+export default http;

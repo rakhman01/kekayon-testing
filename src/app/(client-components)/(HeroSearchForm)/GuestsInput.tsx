@@ -11,7 +11,9 @@ import { UserPlusIcon } from "@heroicons/react/24/outline";
 import { GuestsObject } from "../type";
 import ButtonCircle from "@/shared/ButtonCircle";
 import { useDispatch } from "react-redux";
-import { openModal } from "store/modal/modalSlice";
+import { openModal, updateFormData } from "store/modal/modalSlice";
+import { useSelector } from "react-redux";
+import { RootState } from "store/store";
 
 export interface GuestsInputProps {
   fieldClassName?: string;
@@ -30,7 +32,13 @@ const GuestsInput: FC<GuestsInputProps> = ({
   const [guestChildrenInputValue, setGuestChildrenInputValue] = useState(1);
   const [guestInfantsInputValue, setGuestInfantsInputValue] = useState(1);
   const dispatch = useDispatch();
+  const modalStates = useSelector((state: RootState) => state.modal.formData);
 
+
+    const handleFormUpdate = (field: string, value: any) => {    
+        dispatch(updateFormData({ [field]: value }));
+      };
+  
   const handleChangeData = (value: number, type: keyof GuestsObject) => {
     let newValue = {
       guestAdults: guestAdultsInputValue,
@@ -40,19 +48,34 @@ const GuestsInput: FC<GuestsInputProps> = ({
     if (type === "guestAdults") {
       setGuestAdultsInputValue(value);
       newValue.guestAdults = value;
+      handleFormUpdate('guestAdults', value)
     }
     if (type === "guestChildren") {
       setGuestChildrenInputValue(value);
+      handleFormUpdate('guestChildren', value)
       newValue.guestChildren = value;
     }
     if (type === "guestInfants") {
+      handleFormUpdate('guestInfants', value)
+
       setGuestInfantsInputValue(value);
       newValue.guestInfants = value;
     }
   };
 
+  const openDynamicModal = () => {
+  dispatch(openModal({ title: 'Main', content: 'main modal complete'}));
+};
+
   const totalGuests =
     guestChildrenInputValue + guestAdultsInputValue + guestInfantsInputValue;
+
+
+    useEffect(() => {
+      setGuestAdultsInputValue(modalStates?.guestAdults);
+      setGuestChildrenInputValue(modalStates?.guestChildren);
+      setGuestInfantsInputValue(modalStates?.guestInfants);
+    },[modalStates?.guestAdults, modalStates?.guestChildren,modalStates?.guestInfants])
 
   return (
     <Popover className={`flex relative ${className}`}>
@@ -94,7 +117,7 @@ const GuestsInput: FC<GuestsInputProps> = ({
     <ButtonCircle
       onClick={(event) => {
         event.preventDefault(); // Prevent the default behavior
-        dispatch(openModal());
+        openDynamicModal()
       }}
       size="w-14 h-14"
       children={

@@ -30,3 +30,10 @@ export function getSearchTours(params: {
   export function getCategoryTours() {
     return http.get(`/experiences/category`)
   }
+
+  export function getInterest(params: {
+    s: string,
+    lang: string
+  }) {
+    return http.get(`/tours/interest?s=${params.s}&lang=${params.lang}`)
+  }

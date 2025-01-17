@@ -9,7 +9,6 @@ import NextBtn from "./NextBtn";
 import { variants } from "@/utils/animationVariants";
 import { useWindowSize } from "react-use";
 import Image from "next/image";
-import logo from "@/images/logo.png"
 
 export interface SectionSliderNewCategoriesProps {
   className?: string;
@@ -151,9 +150,9 @@ const SectionSliderBooking: FC<SectionSliderNewCategoriesProps> = ({
                         >
                           <Image
                             // src={image || ""}
-                            src={image || require('../images/full-logo.png')}
+                            src={image || require('../../public/images/dumy_logo.png')}
                             className={`object-contain w-full rounded-2xl   ${
-                              isSelected(item) ? "bg-gray-200 ;' text-white" : "bg-white text-black"
+                              isSelected(item) ? "bg-primary-50 ;' text-white" : "bg-gray-100 text-black"
                             }`}
                             fill
                             alt={title}

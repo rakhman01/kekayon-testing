@@ -1,8 +1,7 @@
 "use client";
-import { TaxonomyType } from "@/data/types";
 import React, { useEffect, useState } from "react";
 import { useDispatch, useSelector } from "react-redux";
-import { closeModal } from "store/modal/modalSlice";
+import { closeModal, updateFormData } from "store/modal/modalSlice";
 import { RootState } from "store/store";
 import ButtonPrimary from "@/shared/ButtonPrimary";
 import Label from "./Label";
@@ -14,76 +13,13 @@ import SectionSliderBooking from "./SectionSliderBooking";
 import { initialStateSearchLocation, SearchApiResponse } from "config/location/types";
 import HttpDataClients from "config/utils";
 import ModalWithCheckboxSelect from "./ModalWithCheckboxSelect";
-import { ApiResponseExperiences, initialStateExperiences } from "config/experiences/types";
+import { initialStateExperiences } from "config/experiences/types";
 import GuestsInputModal from "@/app/(listing-detail)/listing-stay-detail/GuestsInputModal";
+import Image from "next/image";
+import DropdownWithCheckboxSelect from "./DropdownWithCheckboxSelect";
+import { getMonthNumber, getYear } from "utils/globalFunction";
 
 
-
-export const DEMO_CATS_2 = [
-  {
-    id: "1",
-    href: "/listing-real-estate",
-    name: "Enjoy the great cold",
-    taxonomy: "category",
-    count: 188288,
-    image_url:
-      "https://images.pexels.com/photos/5764100/pexels-photo-5764100.jpeg?auto=compress&cs=tinysrgb&dpr=3&h=750&w=1260",
-  },
-  {
-    id: "2",
-    href: "/listing-real-estate",
-    name: "Sleep in a floating way",
-    taxonomy: "category",
-    count: 188288,
-    image_url:
-      "https://images.pexels.com/photos/2869499/pexels-photo-2869499.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
-  },
-  {
-    id: "3",
-    href: "/listing-real-estate",
-    name: "In the billionaire's house",
-    taxonomy: "category",
-    count: 188288,
-    image_url:
-      "https://images.pexels.com/photos/7031413/pexels-photo-7031413.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
-  },
-  {
-    id: "4",
-    href: "/listing-real-estate",
-    name: "Cool in the deep forest",
-    taxonomy: "category",
-    count: 188288,
-    image_url:
-      "https://images.pexels.com/photos/247532/pexels-photo-247532.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
-  },
-  {
-    id: "5",
-    href: "/listing-real-estate",
-    name: "In the billionaire's house",
-    taxonomy: "category",
-    count: 188288,
-    image_url:
-      "https://images.pexels.com/photos/7031413/pexels-photo-7031413.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
-  },
-  {
-    id: "6",
-    href: "/listing-real-estate",
-    name: "Sleep in a floating way",
-    taxonomy: "category",
-    count: 188288,
-    image_url:
-      "https://images.pexels.com/photos/2869499/pexels-photo-2869499.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
-  },
-  {
-    id: "7",
-    href: "/listing-real-estate",
-    name: "In the billionaire's house",
-    taxonomy: "category",
-    count: 188288,
-    image_url:
-      "https://images.pexels.com/photos/7031413/pexels-photo-7031413.jpeg?auto=compress&cs=tinysrgb&dpr=2&h=750&w=1260",
-  },
-];
 
 const ModalBookingRequest: React.FC = () => {
   const isOpen = useSelector((state: RootState) => state.modal.isOpen);
@@ -92,31 +28,12 @@ const ModalBookingRequest: React.FC = () => {
   const [dataLocation, setDataLocation] = useState<SearchApiResponse>(initialStateSearchLocation)
   const [dataExperience, setDataExperience] = useState<any>(initialStateExperiences)
   const [selectedData, setSelectedData] = useState<any>([]);
-  const [data, setData] = useState([{
-    location: '',
-    Interest: '',
-    member: '',
-    tourClass: '',
-    duration: '',
-    depature_time: '',
-    note: '',
-    name: '',
-    buget: '',
-    email: '',
-    phone: ''
-  }])
-
-  const handleInputValue = (key: string, value: any) => {
-      setData((prev) => ({
-        ...prev,
-        key: value
-      }));
-    
-  }
-
-  useEffect(() => {
-    handleInputValue('location', selectedData)
-  }, [selectedData]);
+  const [dataInterest, setDataInterest] = useState<any>([]);
+  const [selectedInterest, setSelectedInterest] = useState<any>([]);
+  const modalStates = useSelector((state: RootState) => state.modal.formData);
+  const title = useSelector((state: RootState) => state.modal.title);
+  const [tourClass, setTourClass] = useState()
+  const [monthsOptions, setMonthsOptions] = useState<any>([])
 
 
   const getLocation = async () => {
@@ -132,6 +49,27 @@ const ModalBookingRequest: React.FC = () => {
       setDataExperience(res)
     }
   }
+  const getInterest = async () => {
+    let res = await HttpDataClients.SearchInterest({ lang: 'id', s: '' })
+    if (res.status) {
+      setDataInterest(res)
+    }
+  }
+
+  const getNext12Months = () => {
+    const currentDate = new Date();
+    console.log(currentDate);
+
+    const options = [];
+
+    for (let i = 0; i < 12; i++) {
+      const futureDate = new Date(currentDate.getFullYear(), currentDate.getMonth() + i);
+      const month = futureDate.toLocaleString("default", { month: "long" });
+      const year = futureDate.getFullYear();
+      options.push(`${month} ${year}`);
+    }
+    setMonthsOptions(options)
+  };
 
 
   useEffect(() => {
@@ -148,6 +86,21 @@ const ModalBookingRequest: React.FC = () => {
     if (isOpen) {
       getLocation()
       getExperience()
+      getInterest()
+      getNext12Months()
+      setSelectedData(
+        dataLocation.data.filter((location) =>
+          modalStates?.locations?.includes(location.id)
+        ))
+
+
+      setSelectedInterest(
+        dataInterest.data?.filter((val: any) => {
+
+          return modalStates?.interest?.includes(val?.id)
+        }))
+
+      setTourClass(modalStates?.clases)
       window.addEventListener("scroll", handleScroll);
     }
 
@@ -157,11 +110,64 @@ const ModalBookingRequest: React.FC = () => {
 
   }, [isOpen]);
 
+  // Set `selectedData` based on `modalStates.locations` and `dataLocation`
+  useEffect(() => {
+
+    if (isOpen && modalStates?.location && dataLocation?.data) {
+      const filteredData = dataLocation.data.filter((location) =>
+        modalStates.location.includes(location.id)
+      );
+      const filteredDataInterst = dataInterest.data?.filter((location: any) =>
+        modalStates.interest.includes(location?.id)
+      );
+
+      setSelectedData(filteredData);
+      setSelectedInterest(filteredDataInterst)
+    }
+
+
+  }, [modalStates?.locations, dataLocation?.data, modalStates?.interest, dataInterest?.data]);
+
+  const handleFormUpdate = (field: string, value: any) => {
+    dispatch(updateFormData({ [field]: value }));
+  };
+
+
   const handleBackdropClick = () => {
     dispatch(closeModal());
   };
 
+  const handleSubmit = async () => {
+    const params = {
+      email: modalStates?.email,
+      name: modalStates?.name,
+      phone: modalStates?.phone || "",
+      approx_date: modalStates?.approx_date || "2025-01-01",
+      approx_month: getMonthNumber(modalStates?.departure_time || monthsOptions[0]) || "",
+      approx_year: getYear(modalStates?.departure_time || monthsOptions[0]) || "",
+      tour_class: modalStates?.tour_class || "Deluxe",
+      adult: modalStates?.guestAdults || 0,
+      children: modalStates?.guestChildren || 0,
+      infant: modalStates?.guestInfants || 0,
+      notes: modalStates?.notes || "",
+      tour_id: modalStates?.tour_id || "10",
+      trip_days: modalStates?.trip_days || "",
+      budget: modalStates?.budget || "",
+    };
 
+
+
+    let data = await HttpDataClients.postSerch(params)    
+    if (data.status) {
+      alert(data.message)
+    } else {
+      alert(data.message)
+    }
+
+
+  }
+
+  console.log(modalStates);
 
 
   return (
@@ -181,41 +187,62 @@ const ModalBookingRequest: React.FC = () => {
           transform: `translateY(-${translateY}px)`, // Adjust the translation on scroll
         }}
       >
-        <h2 className="text-lg font-bold">Create Your Perfect Tour with Us!</h2>
-        <p className="text-xs font-normal py-2 text-gray-600 ">
+        <h2 className="text-4xl font-indonesia font-bold">{title.includes("Main") ? "Create Your Perfect Tour with Us!" : title.includes('Map') ? "Tour inquiry" : "Contact Us"}</h2>
+        <p className="text-xs font-semibold font-roboto py-2 text-gray-600 ">
           Looking for a unique experience? Our custom tours cater to your preferences, whether you want a relaxing day or an adventurous outing!
         </p>
         {/* Your form content */}
-        <SectionSliderBooking
-          categories={dataLocation.data}
-          categoryCardType="card4"
-          itemPerRow={3}
-          className="my-2"
-          selectedData={selectedData}
-          setSelectedData={setSelectedData}
-        />
+        <div className={`${title.includes('Main') ? 'block' : 'hidden'}`}>
+          <SectionSliderBooking
+            categories={dataLocation.data}
+            categoryCardType="card4"
+            itemPerRow={3}
+            className="my-2"
+            selectedData={selectedData}
+            setSelectedData={setSelectedData}
+          />
+        </div>
         <div className="mt-4">
-          <h2 className="text-lg font-bold mb-2">Your Tour Preferences</h2>
+          <div className={`relative ${title.includes('Map') ? 'block' : 'hidden'}`}>
+            <Image
+              className="w-full h-48 rounded-xl object-cover"
+              alt={modalStates?.map?.title}
+              src={modalStates?.map?.banner_image}
+              width={100}
+              height={500}
+              priority
+            />
+            <div className="absolute inset-0 flex flex-col items-center justify-center rounded-xl bg-black bg-opacity-50">
+              <div className="container mx-auto text-center">
+                <h1 className="text-white text-xl font-bold mb-4">
+                  {modalStates?.map?.title}
+                </h1>
+                <p className="text-white text-lg mb-6">{modalStates?.map?.duration}</p>
+              </div>
+            </div>
+          </div>
+
+          {/* <h2 className="text-lg font-bold mb-2">Your Tour Preferences</h2> */}
           <div className="space-y-5">
+            <div className={`${title.includes('Map') || title.includes("Envelope") ? 'hidden' : 'block'} space-y-1`}>
+              <ModalWithCheckboxSelect label="Location" items={dataLocation.data} selectedData={selectedData} setSelectedData={setSelectedData} />
 
-            <div className="space-y-1">
-              <ModalWithCheckboxSelect items={dataLocation.data} selectedData={selectedData} setSelectedData={setSelectedData} />
-
-              <FormItem
+              <DropdownWithCheckboxSelect label="Interest" items={dataInterest?.data || []} selectedData={selectedInterest} setSelectedData={setSelectedInterest} />
+              {/* <FormItem
                 label="Interest"
               >
                 <Select
                   onChange={(val) => console.log(val.target.value)
                   }
                 >
-                  {dataExperience && dataExperience?.data?.map((val: any) => (
-                    <option value={val.id}>{val.title}</option>
+                  {dataInterest && dataInterest?.map((val: any) => (
+                    <option key={val.id} value={val.id}>{val.name}</option>
                   ))}
 
                 </Select>
-              </FormItem>
+              </FormItem> */}
             </div>
-            <div className="flex justify-between items-center gap-2">
+            <div className={`${title.includes('Envelope') ? 'hidden' : 'flex'}   justify-between items-center gap-2`}>
               <FormItem
                 label="Member"
                 className="w-full"
@@ -234,55 +261,57 @@ const ModalBookingRequest: React.FC = () => {
                 className="w-full"
               // desc="Hotel: Professional hospitality businesses that usually have a unique style or theme defining their brand and decor"
               >
-                <Select>
-                  <option value="Cottage">Economi</option>
-                  <option value="Hotel">Deluxe</option>
-                  <option value="Villa">Luxury</option>
+                <Select value={tourClass} onChange={(e: any) => setTourClass(e.target.value)
+                }>
+                  <option value={"Economi"}>Economi</option>
+                  <option value={"Deluxe"}>Deluxe</option>
+                  <option value={"Luxury"}>Luxury</option>
                 </Select>
               </FormItem>
             </div>
-            <div className="flex justify-between items-center gap-2">
+            <div className={`${title.includes('Envelope') ? 'hidden' : 'flex'}   justify-between items-center gap-2`}>
               <FormItem
                 label="Duration"
                 className="w-full"
               // desc="Hotel: Professional hospitality businesses that usually have a unique style or theme defining their brand and decor"
               >
-               <Input placeholder="in day"/>
+                <Input onChange={(e: any) => handleFormUpdate('trip_days', e.target.value)} placeholder="in day" />
               </FormItem>
               <FormItem
                 label="Departure Time"
                 className="w-full"
-              // desc="Hotel: Professional hospitality businesses that usually have a unique style or theme defining their brand and decor"
               >
-                <Select>
-                  <option value="Hotel">January 2025</option>
-                  <option value="Cottage">February 2025</option>
-                  <option value="Villa">March 2025</option>
+                <Select onChange={(e: any) => handleFormUpdate('departure_time', e.target.value)
+                }>
+                  {monthsOptions?.map((monthYear: any, index: number) => (
+                    <option key={index} value={monthYear}>
+                      {monthYear}
+                    </option>
+                  ))}
                 </Select>
               </FormItem>
             </div>
             <div className="space-y-1">
               <Label>Special Request </Label>
-              <Textarea placeholder="..." />
+              <Textarea onChange={(e: any) => handleFormUpdate('notes', e.target.value)} placeholder="..." />
             </div>
             <h2 className="text-lg font-bold mb-2">Your Contact</h2>
             <div className="space-y-1">
               <Label>Full Name </Label>
-              <Input defaultValue="JOHN DOE" />
+              <Input onChange={(e: any) => handleFormUpdate('name', e.target.value)} placeholder="JOHN DOE" />
             </div>
             <div className="space-y-1">
               <Label>*Budget </Label>
-              <Input defaultValue="JOHN DOE" />
+              <Input onChange={(e: any) => handleFormUpdate('budget', e.target.value)} placeholder="1.000.000" />
             </div>
             <div className="space-y-1">
               <Label>Email </Label>
-              <Input type="email" defaultValue="example@gmail.com" />
+              <Input onChange={(e: any) => handleFormUpdate('email', e.target.value)} type="email" placeholder="example@gmail.com" />
             </div>
             <div className="space-y-1">
               <Label>Phone number </Label>
-              <Input defaultValue="(+62) 000-000-0000" />
+              <Input onChange={(e: any) => handleFormUpdate('phone', e.target.value)} placeholder="(+62) 000-000-0000" />
             </div>
-
             {/* <div className="flex space-x-5">
               <div className="flex-1 space-y-1">
                 <Label>Expiration date </Label>
@@ -295,7 +324,7 @@ const ModalBookingRequest: React.FC = () => {
             </div> */}
           </div>
         </div>
-        <ButtonPrimary className="w-full mt-8">Submit Request</ButtonPrimary>
+        <ButtonPrimary onClick={handleSubmit} className="w-full mt-8">Submit Request</ButtonPrimary>
       </div>
     </div>
   );

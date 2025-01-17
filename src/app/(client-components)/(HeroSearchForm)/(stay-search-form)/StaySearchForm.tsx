@@ -7,6 +7,7 @@ import HttpDataClients from "config/utils";
 import { initialStateSearchLocation, SearchApiResponse } from "config/location/types";
 import { initialStateExperiences } from "config/experiences/types";
 import { title } from "process";
+import ClassInput from "../ClassInput";
 
 const StaySearchForm: FC<{}> = ({}) => {
   const [dataLocation, setDataLocation] = useState<SearchApiResponse>(initialStateSearchLocation)
@@ -21,7 +22,7 @@ const StaySearchForm: FC<{}> = ({}) => {
   }
 
   const getExperience = async () => {
-    let res = await HttpDataClients.SearchExperience({ page: 1, s: '' })
+    let res = await HttpDataClients.SearchInterest({ lang: 'id', s: '' })
     if (res.status) {
       setDataExperience(res)
     }
@@ -38,18 +39,18 @@ const StaySearchForm: FC<{}> = ({}) => {
         <ExperienceInput data={dataExperience.data} className="flex-[1]" />
         <div className="self-center border-r border-slate-200 dark:border-slate-700 h-8"></div>
         {/* <StayDatesRangeInput className="flex-1" /> */}
-        <ExperienceInput placeHolder="Class" desc="class" data={[
+        <ClassInput placeHolder="Class" desc="class" data={[
           {
             title: "Economy",
-            id: 1
+            id: "Economi"
           },
           {
             title: "Deluxe",
-            id: 2
+            id: "Deluxe"
           },
           {
             title: "Luxury",
-            id: 3
+            id: "Luxury"
           },
         ]} className="flex-[1]" />
         <div className="self-center border-r border-slate-200 dark:border-slate-700 h-8"></div>

@@ -147,10 +147,10 @@ const MainNav1: FC<MainNav1Props> = ({ className = "" }) => {
             <ButtonSecondary className="self-center" href={"/login " as Route} >
               Sign In
             </ButtonSecondary>
-            <div className="px-1" />
+            {/* <div className="px-1" />
             <ButtonPrimary className="self-center" href={"/register" as Route}>
               Sign up
-            </ButtonPrimary>
+            </ButtonPrimary> */}
           </div>
 
           <div className="flex xl:hidden items-center">

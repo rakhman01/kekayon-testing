@@ -1,5 +1,5 @@
+import React, { useState, useRef, useEffect } from "react";
 import Input from "@/shared/Input";
-import React, { useEffect, useRef, useState } from "react";
 import Label from "./Label";
 
 interface Item {
@@ -11,9 +11,8 @@ const DropdownWithCheckboxSelect: React.FC<any> = ({ items, label, selectedData,
   const [isOpen, setIsOpen] = useState(false); // Toggle visibility
   const dropdownRef = useRef<HTMLDivElement>(null); // Reference to dropdown container
 
-
   const toggleDropdown = () => {
-    setIsOpen(!isOpen); // Toggle dropdown visibility
+    setIsOpen((prev) => !prev); // Toggle dropdown visibility
   };
 
   const handleCheckboxChange = (item: Item) => {
@@ -30,44 +29,45 @@ const DropdownWithCheckboxSelect: React.FC<any> = ({ items, label, selectedData,
   };
 
   const isChecked = (item: Item) => {
-    return selectedData.some((selected: any) => selected.id === item.id);
+    return selectedData?.some((selected: any) => selected.id === item.id);
   };
 
-    useEffect(() => {
-      const handleClickOutside = (event: MouseEvent) => {
-        if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
-          setIsOpen(false); // Close dropdown if clicked outside
-        }
-      };
-  
-      document.addEventListener("mousedown", handleClickOutside);
-      return () => {
-        document.removeEventListener("mousedown", handleClickOutside);
-      };
-    }, []);
+  useEffect(() => {
+    const handleClickOutside = (event: MouseEvent) => {
+      if (dropdownRef.current && !dropdownRef.current.contains(event.target as Node)) {
+        setIsOpen(false); // Close dropdown if clicked outside
+      }
+    };
+
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => {
+      document.removeEventListener("mousedown", handleClickOutside);
+    };
+  }, []);
 
   return (
     <div className="relative" ref={dropdownRef}>
       {/* Button to toggle dropdown */}
       {label && <Label>{label}</Label>}
-      <Input value={selectedData?.length === 0 ? '' : selectedData?.length + ` tempat`} placeholder="Where do you want to go?"  onClick={toggleDropdown} />
+      <Input
+        value={selectedData?.length < 1 ? "" : `${selectedData?.length} tempat`}
+        placeholder="Your Interests?"
+        onClick={toggleDropdown}
+      />
 
       {/* Dropdown list of items with checkboxes */}
       {isOpen && (
         <div className="absolute mt-2 w-full bg-white shadow-lg rounded-lg border border-gray-300 z-10">
           <div className="p-4 space-y-2">
             {items.map((item: any) => (
-              <label
-                key={item.id}
-                className="flex items-center space-x-3 cursor-pointer"
-              >
+              <label key={item.id} className="flex items-center space-x-3 cursor-pointer">
                 <input
                   type="checkbox"
                   checked={isChecked(item)}
                   onChange={() => handleCheckboxChange(item)}
                   className="form-checkbox h-4 w-4"
                 />
-                <span>{item.title}</span>
+                <span>{item.name}</span>
               </label>
             ))}
           </div>

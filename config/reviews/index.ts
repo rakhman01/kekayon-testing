@@ -21,7 +21,6 @@ export function getSearchTours({
     Object.entries(params).map(([key, value]) => [key, String(value)])
   );
 
-  console.log(searchParams.toString(),'search params');
   
 
   return http.get(`/tours`);

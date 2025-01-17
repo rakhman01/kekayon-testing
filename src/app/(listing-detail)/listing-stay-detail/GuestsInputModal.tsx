@@ -1,20 +1,32 @@
 "use client";
 
-import React, { Fragment, FC, useState } from "react";
+import React, { Fragment, FC, useState, useEffect } from "react";
 import { Popover, Transition } from "@headlessui/react";
 import NcInputNumber from "@/components/NcInputNumber";
 import { UserPlusIcon } from "@heroicons/react/24/outline";
 import ClearDataButton from "@/app/(client-components)/(HeroSearchForm)/ClearDataButton";
 import { GuestsObject } from "@/app/(client-components)/type";
+import { useDispatch } from "react-redux";
+import { useSelector } from "react-redux";
+import { RootState } from "store/store";
+import { updateFormData } from "store/modal/modalSlice";
 
 export interface GuestsInputProps {
   className?: string;
 }
 
 const GuestsInputModal: FC<GuestsInputProps> = ({ className = "flex-1" }) => {
+  const dispatch = useDispatch();
   const [guestAdultsInputValue, setGuestAdultsInputValue] = useState(2);
   const [guestChildrenInputValue, setGuestChildrenInputValue] = useState(1);
   const [guestInfantsInputValue, setGuestInfantsInputValue] = useState(1);
+  const modalStates = useSelector((state: RootState) => state.modal.formData);
+
+
+  const handleFormUpdate = (field: string, value: any) => {
+    dispatch(updateFormData({ [field]: value }));
+  };
+
 
   const handleChangeData = (value: number, type: keyof GuestsObject) => {
     let newValue = {
@@ -25,12 +37,16 @@ const GuestsInputModal: FC<GuestsInputProps> = ({ className = "flex-1" }) => {
     if (type === "guestAdults") {
       setGuestAdultsInputValue(value);
       newValue.guestAdults = value;
+      handleFormUpdate('guestAdults', value)
     }
     if (type === "guestChildren") {
       setGuestChildrenInputValue(value);
+      handleFormUpdate('guestChildren', value)
       newValue.guestChildren = value;
     }
     if (type === "guestInfants") {
+      handleFormUpdate('guestInfants', value)
+
       setGuestInfantsInputValue(value);
       newValue.guestInfants = value;
     }
@@ -39,14 +55,20 @@ const GuestsInputModal: FC<GuestsInputProps> = ({ className = "flex-1" }) => {
   const totalGuests =
     guestChildrenInputValue + guestAdultsInputValue + guestInfantsInputValue;
 
+
+  useEffect(() => {
+
+    setGuestAdultsInputValue(modalStates?.guestAdults)
+    setGuestChildrenInputValue(modalStates?.guestChildren)
+    setGuestInfantsInputValue(modalStates?.guestInfants)
+  }, [modalStates?.guestAdults, modalStates?.guestChildren, modalStates?.guestInfants])
   return (
     <Popover className={`flex relative ${className}`}>
       {({ open }) => (
         <>
           <div
-            className={`flex-1 flex items-center focus:outline-none rounded-3xl border ${
-              open ? "shadow-lg" : ""
-            }`}
+            className={`flex-1 flex items-center focus:outline-none rounded-3xl border ${open ? "shadow-lg" : ""
+              }`}
           >
             <Popover.Button
               className={`relative z-1 flex-1 flex text-left items-center p-2 space-x-3 focus:outline-none`}
@@ -56,7 +78,7 @@ const GuestsInputModal: FC<GuestsInputProps> = ({ className = "flex-1" }) => {
               </div>
               <div className="flex-grow">
                 <span className="block xl:text-lg font-semibold">
-                  {totalGuests || ""} 
+                  {totalGuests || ""}
                 </span>
                 {/* <span className="block mt-1 text-sm text-neutral-400 leading-none font-light">
                   {totalGuests ? "Guests" : "Add guests"}

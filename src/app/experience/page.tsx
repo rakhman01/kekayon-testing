@@ -43,7 +43,7 @@ function PageHome({ params }: any) {
     
 
     const getDataTours = async () => {
-        const res = await HttpDataClients.SearchTours({page: 1, s: '',location_ids: '',experience_ids: '', service_name: keywordData})
+        const res = await HttpDataClients.SearchTours({page: 1, s: '',location_ids: '', experience_ids: '', service_name: keywordData})
         if (res.status = 1) {
             setDataTours(res.data)
         }

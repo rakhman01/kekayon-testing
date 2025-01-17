@@ -105,7 +105,7 @@ export const NAVIGATION: NavItemType[] = [
       {
         id: ncNanoId(),
         slug: "/dashboard/who-we-are",
-        name: "who we are",
+        name: "Who We Are",
         href: "/company-profiles/who-we-are" as Route,
         icon: UsersIcon,
         subName: 'Kekayon creates journeys that connect people with the world in a meaningful way.'
@@ -113,7 +113,7 @@ export const NAVIGATION: NavItemType[] = [
       {
         id: ncNanoId(),
         slug: "/dashboard/milestone",
-        name: "milestone",
+        name: "Milestone",
         href: "/company-profiles/milestone"as Route,
         icon: HeartIcon,
         subName: 'Our journey is one of growth and innovation, packed with challenges and achievements.'

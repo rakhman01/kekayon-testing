@@ -1,7 +1,8 @@
 import { getCategory, getDetailExperiences, getSearchExperiences } from "./experiences"
 import { getSearchLocation } from "./location"
 import { getSearchTours } from "./reviews"
-import { getCategoryTours, getDetailRelatedTours, getDetailSummaryTours, getDetailTours } from "./tours"
+import { postSearchTicket } from "./tickets"
+import { getCategoryTours, getDetailRelatedTours, getDetailSummaryTours, getDetailTours, getInterest } from "./tours"
 
 
 class HttpDataClient {
@@ -87,6 +88,28 @@ class HttpDataClient {
     }
     async SearchToursCategorys() {
         return await getCategoryTours().then((response) => {
+            const res = response.data
+            return res
+        }).catch((error: any) => {
+            return error.response.data
+        })
+    }
+    async SearchInterest(params: {
+        s: string,
+        lang: string
+      }) {
+        return await getInterest(params)
+        .then((response) => {
+            const res = response.data
+            return res
+        }).catch((error: any) => {
+            return error.response.data
+        })
+    }
+
+    async postSerch(params: any){                
+        return await postSearchTicket(params)
+        .then((response) => {
             const res = response.data
             return res
         }).catch((error: any) => {

@@ -7,7 +7,6 @@ import { useDispatch, useSelector } from "react-redux";
 import { RootState } from "store/store";
 import { updateFormData } from "store/modal/modalSlice";
 
-
 export interface LocationInputProps {
   placeHolder?: string;
   desc?: string;
@@ -17,7 +16,7 @@ export interface LocationInputProps {
   data?: any;
 }
 
-const LocationInput: FC<LocationInputProps> = ({
+const ClassInput: FC<LocationInputProps> = ({
   autoFocus = false,
   placeHolder = "Location",
   desc = "Where are you going?",
@@ -33,19 +32,18 @@ const LocationInput: FC<LocationInputProps> = ({
 
   const [searchValue, setSearchValue] = useState("");
   const [showPopover, setShowPopover] = useState(autoFocus);
-  const [selectedLocations, setSelectedLocations] = useState<string[]>([]);
+  const [selectedLocation, setSelectedLocation] = useState<string | null>(null);
   const modalStates = useSelector((state: RootState) => state.modal.formData);
 
   useEffect(() => {
     setShowPopover(autoFocus);
   }, [autoFocus]);
 
-
-    const handleClickOutside = React.useCallback((event: MouseEvent) => {
-      if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
-        setShowPopover(false);
-      }
-    }, []);
+  const handleClickOutside = React.useCallback((event: MouseEvent) => {
+    if (containerRef.current && !containerRef.current.contains(event.target as Node)) {
+      setShowPopover(false);
+    }
+  }, []);
 
   useEffect(() => {
     if (showPopover) {
@@ -64,24 +62,22 @@ const LocationInput: FC<LocationInputProps> = ({
     }
   }, [showPopover, handleClickOutside]);
 
-    const handleFormUpdate = (field: string, value: any) => {    
-      dispatch(updateFormData({ [field]: value }));
-    };
-  
+  const handleFormUpdate = (field: string, value: any) => {
+    dispatch(updateFormData({ [field]: value }));
+  };
 
-
-    const handleSelectLocation = (item: any) => {
-      const isSelected = selectedLocations.includes(item.name);    
-      const currentLocations = modalStates?.interest || [];
-      if (isSelected) {
-        setSelectedLocations((prev) => prev.filter((interest) => interest !== item.name));
-        handleFormUpdate('interest', currentLocations.filter((loc: string) => loc !== item.id));
-      } else {
-        setSelectedLocations((prev) => [...prev, item.name]);
-        handleFormUpdate('interest', [...currentLocations, item.id]);
-      }
-      setShowPopover(false);
-    };
+  const handleSelectLocation = (item: any) => {
+    if (selectedLocation === item.title) {
+      // If the same item is selected, deselect it
+      setSelectedLocation(null);
+      handleFormUpdate("clases", null);
+    } else {
+      // Select the new item
+      setSelectedLocation(item.title);
+      handleFormUpdate("clases", item.id);
+    }
+    setShowPopover(false);
+  };
 
   const renderRecentSearches = () => (
     <>
@@ -93,17 +89,17 @@ const LocationInput: FC<LocationInputProps> = ({
           <label
             key={item.id}
             className={`flex px-4 sm:px-8 items-center space-x-3 sm:space-x-4 py-4 hover:bg-neutral-100 dark:hover:bg-neutral-700 cursor-pointer truncate ${
-              selectedLocations.includes(item.name) ? "bg-gray-200" : ""
+              selectedLocation === item.title ? "bg-gray-200" : ""
             }`}
           >
             <input
-              type="checkbox"
-              checked={selectedLocations.includes(item.name)}
+              type="radio"
+              checked={selectedLocation === item.title}
               onChange={() => handleSelectLocation(item)}
-              className="form-checkbox"
+              className="form-radio"
             />
             <span className="block font-medium text-neutral-700 dark:text-neutral-200">
-              {item.name}
+              {item.title}
             </span>
           </label>
         ))}
@@ -125,14 +121,14 @@ const LocationInput: FC<LocationInputProps> = ({
         <div className="flex-grow">
           <input
             className="block w-full bg-transparent border-none focus:ring-0 p-0 focus:outline-none xl:text-lg font-semibold placeholder-neutral-800 dark:placeholder-neutral-200 truncate"
-            placeholder={selectedLocations.length > 0 ? "" : placeHolder}
-            value={`${selectedLocations.length} selected`}
+            placeholder={selectedLocation ? "" : placeHolder}
+            value={selectedLocation || ""}
             autoFocus={showPopover}
             onChange={(e) => setSearchValue(e.currentTarget.value)}
             ref={inputRef}
           />
           <span className="block mt-0.5 text-sm text-neutral-400 font-light">
-            {!!searchValue || selectedLocations.length > 0 ? placeHolder : desc}
+            {!!searchValue || selectedLocation ? placeHolder : desc}
           </span>
           {searchValue && showPopover && (
             <ClearDataButton onClick={() => setSearchValue("")} />
@@ -149,4 +145,4 @@ const LocationInput: FC<LocationInputProps> = ({
   );
 };
 
-export default LocationInput;
+export default ClassInput;
