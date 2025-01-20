@@ -35,25 +35,25 @@ const GuestsInputModal: FC<GuestsInputProps> = ({ className = "flex-1" }) => {
       guestInfants: guestInfantsInputValue,
     };
     if (type === "guestAdults") {
-      setGuestAdultsInputValue(value);
+      setGuestAdultsInputValue(value || 0);
       newValue.guestAdults = value;
       handleFormUpdate('guestAdults', value)
     }
     if (type === "guestChildren") {
-      setGuestChildrenInputValue(value);
+      setGuestChildrenInputValue(value || 0);
       handleFormUpdate('guestChildren', value)
       newValue.guestChildren = value;
     }
     if (type === "guestInfants") {
       handleFormUpdate('guestInfants', value)
 
-      setGuestInfantsInputValue(value);
+      setGuestInfantsInputValue(value || 0);
       newValue.guestInfants = value;
     }
   };
 
   const totalGuests =
-    guestChildrenInputValue + guestAdultsInputValue + guestInfantsInputValue;
+    guestChildrenInputValue + guestAdultsInputValue + guestInfantsInputValue;    
 
 
   useEffect(() => {
@@ -63,7 +63,7 @@ const GuestsInputModal: FC<GuestsInputProps> = ({ className = "flex-1" }) => {
     setGuestInfantsInputValue(modalStates?.guestInfants)
   }, [modalStates?.guestAdults, modalStates?.guestChildren, modalStates?.guestInfants])
   return (
-    <Popover className={`flex relative ${className}`}>
+    <Popover className={`flex relative ${className} z-50`}>
       {({ open }) => (
         <>
           <div

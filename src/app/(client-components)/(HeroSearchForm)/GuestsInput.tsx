@@ -28,9 +28,9 @@ const GuestsInput: FC<GuestsInputProps> = ({
   // buttonSubmitHref = "/listing-stay-map",
   hasButtonSubmit = true,
 }) => {
-  const [guestAdultsInputValue, setGuestAdultsInputValue] = useState(2);
-  const [guestChildrenInputValue, setGuestChildrenInputValue] = useState(1);
-  const [guestInfantsInputValue, setGuestInfantsInputValue] = useState(1);
+  const [guestAdultsInputValue, setGuestAdultsInputValue] = useState(0);
+  const [guestChildrenInputValue, setGuestChildrenInputValue] = useState(0);
+  const [guestInfantsInputValue, setGuestInfantsInputValue] = useState(0);
   const dispatch = useDispatch();
   const modalStates = useSelector((state: RootState) => state.modal.formData);
 
@@ -69,12 +69,12 @@ const GuestsInput: FC<GuestsInputProps> = ({
 
   const totalGuests =
     guestChildrenInputValue + guestAdultsInputValue + guestInfantsInputValue;
-
+    
 
     useEffect(() => {
-      setGuestAdultsInputValue(modalStates?.guestAdults);
-      setGuestChildrenInputValue(modalStates?.guestChildren);
-      setGuestInfantsInputValue(modalStates?.guestInfants);
+      setGuestAdultsInputValue(modalStates?.guestAdults || 0);
+      setGuestChildrenInputValue(modalStates?.guestChildren || 0);
+      setGuestInfantsInputValue(modalStates?.guestInfants || 0);
     },[modalStates?.guestAdults, modalStates?.guestChildren,modalStates?.guestInfants])
 
   return (

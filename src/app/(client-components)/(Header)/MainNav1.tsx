@@ -128,11 +128,11 @@ const MainNav1: FC<MainNav1Props> = ({ className = "" }) => {
           <Navigation />
         </div>
 
-        <div className="flex lg:hidden flex-[3] max-w-lg !mx-auto md:px-3 ">
+        {/* <div className="flex lg:hidden flex-[3] max-w-lg !mx-auto md:px-3 ">
           <div className="self-center flex-1">
             <HeroSearchForm2MobileFactory />
           </div>
-        </div>
+        </div> */}
 
         <div className="hidden md:flex flex-shrink-0 justify-end flex-1 lg:flex-none text-neutral-700 dark:text-neutral-100">
           <div className="hidden xl:flex space-x-0.5">
@@ -156,7 +156,8 @@ const MainNav1: FC<MainNav1Props> = ({ className = "" }) => {
           <div className="flex xl:hidden items-center">
             <SwitchDarkMode />
             <div className="px-0.5" />
-            <MenuBar />
+            {/* change this menu to tablet verision */}
+            {/* <MenuBar /> */}
           </div>
         </div>
       </div>

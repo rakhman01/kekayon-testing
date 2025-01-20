@@ -24,7 +24,6 @@ import { getMonthNumber, getYear } from "utils/globalFunction";
 const ModalBookingRequest: React.FC = () => {
   const isOpen = useSelector((state: RootState) => state.modal.isOpen);
   const dispatch = useDispatch();
-  const [translateY, setTranslateY] = useState(0); // Track how much the modal has been translated on Y-axis
   const [dataLocation, setDataLocation] = useState<SearchApiResponse>(initialStateSearchLocation)
   const [dataExperience, setDataExperience] = useState<any>(initialStateExperiences)
   const [selectedData, setSelectedData] = useState<any>([]);
@@ -34,6 +33,9 @@ const ModalBookingRequest: React.FC = () => {
   const title = useSelector((state: RootState) => state.modal.title);
   const [tourClass, setTourClass] = useState()
   const [monthsOptions, setMonthsOptions] = useState<any>([])
+  const [errors, setErrors] = useState<Record<string, string>>({});
+  const [loading, setLoading ] = useState<boolean>(false)
+
 
 
   const getLocation = async () => {
@@ -58,7 +60,6 @@ const ModalBookingRequest: React.FC = () => {
 
   const getNext12Months = () => {
     const currentDate = new Date();
-    console.log(currentDate);
 
     const options = [];
 
@@ -71,17 +72,26 @@ const ModalBookingRequest: React.FC = () => {
     setMonthsOptions(options)
   };
 
+  // const validateForm = () => {
+      
+  //   const newErrors: any = {};
+  //   if (!modalStates?.name) newErrors.name = "Name is required";
+  //   if (!modalStates?.email) newErrors.email = "Email is required";
+  //   if (!modalStates?.phone) newErrors.phone = "Phone is required";
+  //   if (!modalStates?.tour_class) newErrors.tour_class = "Tour class is required";
+  //   if (!modalStates?.trip_days) newErrors.trip_days = "Trip duration is required";
+  //   if (!modalStates?.budget) newErrors.budget = "Budget is required";
+  //   if (!modalStates?.trip_days) newErrors.trip_days = "Trip days is required";
+  //   if (!modalStates?.guestAdults && !modalStates?.guestChildren && !modalStates?.guestInfants ) newErrors.member = "Member min 1";
+  //   if (selectedData.length === 0 && title === "Main") newErrors.interest = "Interest is required";
+  //   if (selectedInterest.length === 0&& title === "Main") newErrors.location = "Location is required";
+  //   return newErrors;
+  // };
+
+
+
 
   useEffect(() => {
-    const handleScroll = () => {
-      // Update translateY based on scroll position
-      const scrollY = window.scrollY;
-      if (scrollY > 100) {
-        setTranslateY(scrollY - 100); // Starts sliding up as user scrolls
-      } else {
-        setTranslateY(0); // Reset position when scroll is less than 50px
-      }
-    };
 
     if (isOpen) {
       getLocation()
@@ -101,12 +111,8 @@ const ModalBookingRequest: React.FC = () => {
         }))
 
       setTourClass(modalStates?.clases)
-      window.addEventListener("scroll", handleScroll);
     }
 
-    return () => {
-      window.removeEventListener("scroll", handleScroll);
-    };
 
   }, [isOpen]);
 
@@ -136,38 +142,92 @@ const ModalBookingRequest: React.FC = () => {
   const handleBackdropClick = () => {
     dispatch(closeModal());
   };
-
+  const validateForm = () => {
+    const newErrors: Record<string, string> = {};
+  
+    const requiredFields = [
+      { key: "name", message: "Name is required" },
+      { key: "email", message: "Email is required" },
+      { key: "phone", message: "Phone is required" },
+      // { key: "tour_class", message: "Tour class is required" },
+      { key: "trip_days", message: "Trip days are required" },
+      { key: "budget", message: "Budget is required" },
+    ];
+  
+    // Validate required fields
+    requiredFields.forEach(({ key, message }) => {
+      if (!modalStates?.[key]) newErrors[key] = message;
+    });
+  
+    // Validate guests
+    if (
+      !modalStates?.guestAdults &&
+      !modalStates?.guestChildren &&
+      !modalStates?.guestInfants
+    ) {
+      newErrors.member = "At least one member is required";
+    }
+  
+    // Validate specific conditions
+    if (title === "Main") {
+      if (selectedData.length < 1) newErrors.location = "Location is required";
+      if (selectedInterest.length < 1)
+        newErrors.interest = "Interest is required";
+    }
+  
+    return newErrors;
+  };
+  
   const handleSubmit = async () => {
+    const validationErrors = validateForm();
+    
+    if (Object.keys(validationErrors).length > 0) {
+      setErrors(validationErrors);
+      return;
+    }
+      
+    setLoading(true)
+    // Create common parameters
     const params = {
       email: modalStates?.email,
       name: modalStates?.name,
       phone: modalStates?.phone || "",
       approx_date: modalStates?.approx_date || "2025-01-01",
-      approx_month: getMonthNumber(modalStates?.departure_time || monthsOptions[0]) || "",
-      approx_year: getYear(modalStates?.departure_time || monthsOptions[0]) || "",
+      approx_month:
+        getMonthNumber(modalStates?.departure_time || monthsOptions[0]) || "",
+      approx_year:
+        getYear(modalStates?.departure_time || monthsOptions[0]) || "",
       tour_class: modalStates?.tour_class || "Deluxe",
       adult: modalStates?.guestAdults || 0,
       children: modalStates?.guestChildren || 0,
       infant: modalStates?.guestInfants || 0,
       notes: modalStates?.notes || "",
-      tour_id: modalStates?.tour_id || "10",
       trip_days: modalStates?.trip_days || "",
       budget: modalStates?.budget || "",
     };
+      
+    // Extend parameters based on title
+    const requestParams = {
+      Main: { ...params, location_ids: selectedData?.map((val: any) => val.id), interest_ids: selectedInterest.map((val: any) => val.id) },
+      Map: { ...params, tour_id: modalStates?.map?.id },
+    }[title] || params;
+    
+  
+    try {
+      const data = await HttpDataClients.postSerch(requestParams);
+      setLoading(false)
+      alert(data.message);
+      if (data.status) {
+        dispatch(closeModal());
+        window.location.reload()
 
-
-
-    let data = await HttpDataClients.postSerch(params)    
-    if (data.status) {
-      alert(data.message)
-    } else {
-      alert(data.message)
+      }
+    } catch (error) {
+      setLoading(false)
+      alert("An error occurred while submitting the form.");
     }
-
-
-  }
-
-  console.log(modalStates);
+  };
+  
 
 
   return (
@@ -180,11 +240,11 @@ const ModalBookingRequest: React.FC = () => {
     >
       <div
         onClick={(e) => e.stopPropagation()} // Prevent closing when clicking inside the modal
-        className={`bg-white px-4 py-8 mt-24 rounded-2xl shadow-lg w-96 sm:w-[480px] transition-transform duration-300 mx-auto `}
+        className={`bg-white px-6 py-8 mt-8  pb-20 rounded-2xl shadow-lg w-96 sm:w-[520px] max-h-[800px] transition-transform overflow-auto duration-300 mx-auto`}
         style={{
           // maxHeight: "90vh",
           // overflowY: "auto",
-          transform: `translateY(-${translateY}px)`, // Adjust the translation on scroll
+          // transform: `translateY(-${translateY}px)`, // Adjust the translation on scroll
         }}
       >
         <h2 className="text-4xl font-indonesia font-bold">{title.includes("Main") ? "Create Your Perfect Tour with Us!" : title.includes('Map') ? "Tour inquiry" : "Contact Us"}</h2>
@@ -226,8 +286,11 @@ const ModalBookingRequest: React.FC = () => {
           <div className="space-y-5">
             <div className={`${title.includes('Map') || title.includes("Envelope") ? 'hidden' : 'block'} space-y-1`}>
               <ModalWithCheckboxSelect label="Location" items={dataLocation.data} selectedData={selectedData} setSelectedData={setSelectedData} />
+              {selectedData?.length < 1 && errors.location && <p className="text-red-500 text-sm mt-2">{errors.location}</p>}
 
               <DropdownWithCheckboxSelect label="Interest" items={dataInterest?.data || []} selectedData={selectedInterest} setSelectedData={setSelectedInterest} />
+              {selectedInterest?.length < 1 && errors.interest && <p className="text-red-500 text-sm mt-2">{errors.interest}</p>}
+
               {/* <FormItem
                 label="Interest"
               >
@@ -244,19 +307,6 @@ const ModalBookingRequest: React.FC = () => {
             </div>
             <div className={`${title.includes('Envelope') ? 'hidden' : 'flex'}   justify-between items-center gap-2`}>
               <FormItem
-                label="Member"
-                className="w-full"
-              // desc="Hotel: Professional hospitality businesses that usually have a unique style or theme defining their brand and decor"
-              >
-                <GuestsInputModal />
-                {/* <Select>
-                  <option value="Hotel">Prambanan</option>
-                  <option value="Cottage">Kute</option>
-                  <option value="Villa">Monas</option>
-                  <option value="Cabin">Rawit</option>
-                </Select> */}
-              </FormItem>
-              <FormItem
                 label="Tour Class"
                 className="w-full"
               // desc="Hotel: Professional hospitality businesses that usually have a unique style or theme defining their brand and decor"
@@ -268,6 +318,22 @@ const ModalBookingRequest: React.FC = () => {
                   <option value={"Luxury"}>Luxury</option>
                 </Select>
               </FormItem>
+              <FormItem
+                label="Member"
+                className="w-full"
+              // desc="Hotel: Professional hospitality businesses that usually have a unique style or theme defining their brand and decor"
+              >
+                <GuestsInputModal />
+                {/* <Select>
+                  <option value="Hotel">Prambanan</option>
+                  <option value="Cottage">Kute</option>
+                  <option value="Villa">Monas</option>
+                  <option value="Cabin">Rawit</option>
+                </Select> */}
+                                {errors.member && <p className="text-red-500 text-sm mt-2">{errors.member}</p>}
+
+              </FormItem>
+
             </div>
             <div className={`${title.includes('Envelope') ? 'hidden' : 'flex'}   justify-between items-center gap-2`}>
               <FormItem
@@ -276,6 +342,8 @@ const ModalBookingRequest: React.FC = () => {
               // desc="Hotel: Professional hospitality businesses that usually have a unique style or theme defining their brand and decor"
               >
                 <Input onChange={(e: any) => handleFormUpdate('trip_days', e.target.value)} placeholder="in day" />
+                {errors.trip_days && <p className="text-red-500 text-sm mt-2">{errors.trip_days}</p>}
+
               </FormItem>
               <FormItem
                 label="Departure Time"
@@ -289,6 +357,7 @@ const ModalBookingRequest: React.FC = () => {
                     </option>
                   ))}
                 </Select>
+                {errors.departure_time && <p className="text-red-500 text-sm mt-2">{errors.departure_time}</p>}
               </FormItem>
             </div>
             <div className="space-y-1">
@@ -299,18 +368,22 @@ const ModalBookingRequest: React.FC = () => {
             <div className="space-y-1">
               <Label>Full Name </Label>
               <Input onChange={(e: any) => handleFormUpdate('name', e.target.value)} placeholder="JOHN DOE" />
+              {errors.name && <p className="text-red-500 text-sm mt-2">{errors.name}</p>}
             </div>
             <div className="space-y-1">
               <Label>*Budget </Label>
               <Input onChange={(e: any) => handleFormUpdate('budget', e.target.value)} placeholder="1.000.000" />
+              {errors.budget && <p className="text-red-500 text-sm mt-2">{errors.budget}</p>}
             </div>
             <div className="space-y-1">
               <Label>Email </Label>
               <Input onChange={(e: any) => handleFormUpdate('email', e.target.value)} type="email" placeholder="example@gmail.com" />
+              {errors.email && <p className="text-red-500 text-sm mt-2">{errors.email}</p>}
             </div>
             <div className="space-y-1">
               <Label>Phone number </Label>
               <Input onChange={(e: any) => handleFormUpdate('phone', e.target.value)} placeholder="(+62) 000-000-0000" />
+              {errors.phone && <p className="text-red-500 text-sm mt-2">{errors.phone}</p>}
             </div>
             {/* <div className="flex space-x-5">
               <div className="flex-1 space-y-1">
@@ -324,7 +397,7 @@ const ModalBookingRequest: React.FC = () => {
             </div> */}
           </div>
         </div>
-        <ButtonPrimary onClick={handleSubmit} className="w-full mt-8">Submit Request</ButtonPrimary>
+        <ButtonPrimary loading={loading} onClick={handleSubmit} className="w-full mt-8">Submit Request</ButtonPrimary>
       </div>
     </div>
   );

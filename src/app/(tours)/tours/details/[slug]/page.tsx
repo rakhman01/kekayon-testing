@@ -216,8 +216,6 @@ const Page: FC<
   const renderSection2 = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [modalData, setModalData] = useState<any>(null);
-
-    console.log(modalData,'modal data');
     
 
     const handleReadMore = (data: any) => {
