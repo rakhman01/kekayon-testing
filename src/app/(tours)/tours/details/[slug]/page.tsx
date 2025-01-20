@@ -20,6 +20,8 @@ import ExperiencesCardI from "@/components/ExperiencesCardI";
 import HttpDataClients from "config/utils";
 import { ChevronDownIcon, ChevronUpIcon, MapPinIcon } from "@heroicons/react/24/solid";
 import FloatingMenu from "@/components/FloatingMenu";
+import { useDispatch } from "react-redux";
+import { updateFormData } from "store/modal/modalSlice";
 
 export interface ListingExperiencesDetailPageProps { }
 
@@ -108,6 +110,7 @@ const Page: FC<
   const router = useRouter();
   const params = useParams();
   const { slug } = params;
+  const dispatch = useDispatch();
   const [dataTours, setDataTours] = useState<any>()
   const [dataSummaryTours, setDataSummaryTours] = useState<any>([])
   const [dataRelatedTours, setDataRelatedTours] = useState<any>([])
@@ -116,7 +119,10 @@ const Page: FC<
 
     const res = await HttpDataClients.SearchDetailTours({ id: slug, lang: '' })
     if (res.status = 1) {
-      setDataTours(res.data)
+      let data = res.data
+      setDataTours(data)
+      dispatch(updateFormData({'map': { banner_image: data?.banner_image, duration: data?.duration, title: data?.title, id: data?.id } }))
+
     }
   }
   const getDataSummaryTours = async () => {

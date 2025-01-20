@@ -205,10 +205,11 @@ const ModalBookingRequest: React.FC = () => {
       trip_days: modalStates?.trip_days || "",
       budget: modalStates?.budget || "",
     };
+      console.log(modalStates,'modal states');
       
     // Extend parameters based on title
     const requestParams = {
-      Main: { ...params, location_ids: selectedData?.map((val: any) => val.id), interest_ids: selectedInterest.map((val: any) => val.id) },
+      Main: { ...params, location_ids: selectedData?.map((val: any) => val.id), interest_ids: selectedInterest?.map((val: any) => val.id) },
       Map: { ...params, tour_id: modalStates?.map?.id },
     }[title] || params;
     

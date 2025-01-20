@@ -2,21 +2,28 @@ import React, { useRef } from "react";
 import { MapIcon, PhoneIcon, EnvelopeIcon } from "@heroicons/react/24/solid";
 import { useDispatch } from "react-redux";
 import { openModal, updateFormData } from "store/modal/modalSlice";
+import { useSelector } from "react-redux";
+import { RootState } from "store/store";
 
 const FloatingMenu = ({data}: any) => {    
-    
+  const modalStates = useSelector((state: RootState) => state.modal.formData);
   const dispatch = useDispatch();
   const menuRef = useRef<HTMLDivElement | null>(null);
   const containerRef = useRef<HTMLDivElement | null>(null);
 
-  // Function to open a modal dynamically
   const openDynamicModal = (title: string, content: string) => {
+    // if (!data) {
+    //   console.error("Data is not available yet.");
+    //   return;
+    // }
+  
+    // if (title.includes("Map")) {
+    //   dispatch(updateFormData({ map: data }));
+    // }
+  
     dispatch(openModal({ title, content }));
-    if (title.includes("Map")) {
-        dispatch(updateFormData({ 'map': data }));
-    }
   };
-
+  
   // Array of icons with their corresponding actions
   const icons = [
     {
